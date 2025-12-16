@@ -13,13 +13,21 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private Vision vision;
+
   public Robot() {
     m_robotContainer = new RobotContainer();
+  
+    vision = new Vision(m_robotContainer.drivetrain::addVisionMeasurement);
+    
   }
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
+
+    vision.periodic();
+
   }
 
   @Override

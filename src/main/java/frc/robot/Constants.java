@@ -26,4 +26,27 @@ public class Constants {
         public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
     }
+
+    public static class AutonConstants
+  {
+    public static final double LINEAR_VELOCITY = 2.0; //MPS
+    public static final double LINEAR_ACELERATION = 2.0; //Meters per second squared
+    public static final double ANGULAR_VELOCITY = 720; //Degrees
+    public static final double ANGULAR_ACCELERATION = 360; //Degrees per second squared
+  
+  }
+
+  public static class AprilTagConstants {
+    public static int HumanPlayerLeft = 0; // 1 red, 13 blue
+    public static int HumanPlayerRight = 0; // 2 red, 12 blue
+    public static int Processor = 0; // 3 red, 11 blue
+    public static int BargeFront = 0; // 5, 14 both blue and red are on the same side of the field
+    public static int BargeBack = 0; // 15, 4 both blue and red are on the same side of the field
+    public static int Reef0 = 0; // 7 red, 18 Blue
+    public static int Reef60 = 0; // 8 red, 17 Blue
+    public static int Reef120 = 0; // 9 red, 22 Blue
+    public static int Reef180 = 0; // 10 red, 21 Blue
+    public static int Reef240 = 0; // 11 red, 20 Blue
+    public static int Reef300 = 0; // 6 red, 19
+  }
 }

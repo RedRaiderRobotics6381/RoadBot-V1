@@ -29,8 +29,10 @@
  import edu.wpi.first.math.Matrix;
  import edu.wpi.first.math.VecBuilder;
  import edu.wpi.first.math.geometry.Pose2d;
- import edu.wpi.first.math.geometry.Rotation2d;
- import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.numbers.N1;
  import edu.wpi.first.math.numbers.N3;
  import edu.wpi.first.wpilibj.smartdashboard.Field2d;
  import java.util.List;
@@ -196,4 +198,17 @@
      public static interface EstimateConsumer {
          public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs);
      }
+
+     public static Pose2d getAprilTagPose(int aprilTag, Transform2d robotOffset)
+  {
+    Optional<Pose3d> aprilTagPose3d = Constants.Vision.kTagLayout.getTagPose(aprilTag);
+    if (aprilTagPose3d.isPresent())
+    {
+      return aprilTagPose3d.get().toPose2d().transformBy(robotOffset);
+    } else
+    {
+      throw new RuntimeException("Cannot get AprilTag " + aprilTag + " from field " + Constants.Vision.kTagLayout.toString());
+    }
+
+  }
  }

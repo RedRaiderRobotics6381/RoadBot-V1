@@ -11,11 +11,14 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -97,6 +100,18 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        joystick.y().whileTrue(Commands.deferredProxy(() -> {
+            // getSnappedAngleID();
+            return drivetrain.driveToPoseWithConstraints(
+            Vision.getAprilTagPose(Constants.AprilTagConstants.HumanPlayerLeft,
+            new Transform2d(0.55,   0.0,
+            Rotation2d.fromDegrees(180.0))),
+            new PathConstraints(Constants.AutonConstants.LINEAR_VELOCITY,
+                                Constants.AutonConstants.LINEAR_ACELERATION,
+                                Math.toRadians(Constants.AutonConstants.ANGULAR_VELOCITY),
+                                Math.toRadians(Constants.AutonConstants.ANGULAR_ACCELERATION)));
+          }));
     }
 
     public Command getAutonomousCommand() {

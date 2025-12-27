@@ -6,15 +6,23 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -101,17 +109,28 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystick.y().whileTrue(Commands.deferredProxy(() -> {
-            // getSnappedAngleID();
-            return drivetrain.driveToPoseWithConstraints(
-            Vision.getAprilTagPose(Constants.AprilTagConstants.HumanPlayerLeft,
-            new Transform2d(0.55,   0.0,
-            Rotation2d.fromDegrees(180.0))),
-            new PathConstraints(Constants.AutonConstants.LINEAR_VELOCITY,
-                                Constants.AutonConstants.LINEAR_ACELERATION,
-                                Math.toRadians(Constants.AutonConstants.ANGULAR_VELOCITY),
-                                Math.toRadians(Constants.AutonConstants.ANGULAR_ACCELERATION)));
-          }));
+        joystick.y().whileTrue(Commands.runOnce(() -> {
+            Pose2d currentPose = drivetrain.getState().Pose;
+      
+            Pose2d startPos = new Pose2d(currentPose.getTranslation(), new Rotation2d());
+            Pose2d endPos = new Pose2d(currentPose.getTranslation().plus(new Translation2d(2.0, 0.0)), new Rotation2d());
+
+            List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startPos, endPos);
+                PathPlannerPath path = new PathPlannerPath(
+                waypoints, 
+                new PathConstraints(
+                    4.0, 4.0, 
+                    Units.degreesToRadians(360), Units.degreesToRadians(540)
+            ),
+            null, // Ideal starting state can be null for on-the-fly paths
+            new GoalEndState(0.0, currentPose.getRotation())
+            );
+
+            // Prevent this path from being flipped on the red alliance, since the given positions are already correct
+            path.preventFlipping = true;
+
+            AutoBuilder.followPath(path).schedule();
+        }));
     }
 
     public Command getAutonomousCommand() {

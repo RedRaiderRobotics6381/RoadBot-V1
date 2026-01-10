@@ -37,7 +37,7 @@ public class Constants {
   }
 
   public static class AprilTagConstants {
-    public static int HumanPlayerLeft = 0; // 1 red, 13 blue
+    public static int HumanPlayerLeft = 4; // 1 red, 13 blue
     public static int HumanPlayerRight = 0; // 2 red, 12 blue
     public static int Processor = 0; // 3 red, 11 blue
     public static int BargeFront = 0; // 5, 14 both blue and red are on the same side of the field

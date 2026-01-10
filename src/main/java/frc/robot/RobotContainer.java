@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -64,9 +65,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed * .5) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed * .5) // Drive left with negative X (left)
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate * .5) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -101,17 +102,15 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        joystick.y().whileTrue(Commands.deferredProxy(() -> {
-            // getSnappedAngleID();
-            return drivetrain.driveToPoseWithConstraints(
-            Vision.getAprilTagPose(Constants.AprilTagConstants.HumanPlayerLeft,
-            new Transform2d(0.55,   0.0,
-            Rotation2d.fromDegrees(180.0))),
+        joystick.y().whileTrue(
+            drivetrain.driveToPoseWithConstraints(
+            new Pose2d(1.0,   0.0,
+            Rotation2d.fromDegrees(90.0)),
             new PathConstraints(Constants.AutonConstants.LINEAR_VELOCITY,
                                 Constants.AutonConstants.LINEAR_ACELERATION,
                                 Math.toRadians(Constants.AutonConstants.ANGULAR_VELOCITY),
-                                Math.toRadians(Constants.AutonConstants.ANGULAR_ACCELERATION)));
-          }));
+                                Math.toRadians(Constants.AutonConstants.ANGULAR_ACCELERATION)))
+          );
     }
 
     public Command getAutonomousCommand() {

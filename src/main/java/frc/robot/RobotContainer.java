@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Secondary.Outtake;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class RobotContainer {
@@ -55,6 +56,8 @@ public class RobotContainer {
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
+
+    public final Outtake m_outtake = new Outtake();
 
     public RobotContainer() {
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -89,6 +92,8 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+
+        joystick.y().whileTrue(getAutonomousCommand())
 
         joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
             forwardStraight.withVelocityX(0.5).withVelocityY(0))

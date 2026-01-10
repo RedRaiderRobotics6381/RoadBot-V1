@@ -21,7 +21,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-public class RotateSubsystem {
+public class RotateSubsystem extends SubsystemBase {
     
     private SparkFlex armAngMtr;
     public AbsoluteEncoder armAngEnc;
@@ -38,7 +38,7 @@ public class RotateSubsystem {
 
 
     public RotateSubsystem() {
-        armAngMtr = new SparkFlex(CoralConstants.CORAL_ROTATE_MOTOR_PORT, MotorType.kBrushless);
+        armAngMtr = new SparkFlex(RotateConstants.ROTATE_MOTOR_PORT, MotorType.kBrushless);
         armAngMtrCfg = new SparkFlexConfig();
 
         armAngPID = armAngMtr.getClosedLoopController();
@@ -63,5 +63,54 @@ public class RotateSubsystem {
                 .outputRange(angOutputMin, angOutputMax)
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         armAngMtr.configure(armAngMtrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // Add motors to the simulation
+        if (Robot.isSimulation()) {
+            armAngMtrSim = new SparkFlexSim(armAngMtr, DCMotor.getNEO(1));
+            armAngEncSim = new SparkAbsoluteEncoderSim(armAngMtr);
+            armAngMtrSim.setPosition(190);
+            armAngEncSim.setPosition(190);
+            armAngMtrSim.setVelocity(0);
+            armAngEncSim.setVelocity(0);
+        }
     }
+
+    public FunctionalCommand setRotateAngleCmd(double pos) {
+        return new FunctionalCommand(
+                () -> {
+                },
+                () -> setRotateAngle(pos), interrupted -> {
+                },
+                () -> (Math.abs(pos - armAngEnc.getPosition()) <= 2.0 || (Math.abs(pos - armAngEnc.getPosition()) <= 4.0 && Math.abs(armAngEnc.getVelocity()) <= 5.0)),
+                this);
+    }
+    public void setRotateAngle(double angle) {
+        armAngPID.setReference(angle, SparkMax.ControlType.kPosition);
+
+        armAngPID.setReference(angle,
+        SparkMax.ControlType.kPosition,
+        ClosedLoopSlot.kSlot0,
+        angkFF * Math.abs(Math.cos(Math.toRadians(angle - 115))),
+        ArbFFUnits.kPercentOut);
+    }
+
+    public void simulationPeriodic() {
+        // This method will be called once per scheduler run during simulation
+        armAngEncSim.setPosition(armAngMtrSim.getPosition());
+        armAngMtrSim.iterate(armAngEncSim.getPosition(), armAngMtrSim.getBusVoltage(), .005);
+    }
+    public void periodic() {
+        // This method will be called once per scheduler run
+        if (Robot.isSimulation()) {
+            SmartDashboard.putNumber("Coarl Arm Position", armAngEncSim.getPosition());
+        } else {
+            SmartDashboard.putNumber("Coral Arm Position", armAngEnc.getPosition());
+            SmartDashboard.putNumber("Coral Arm Speed", armAngEnc.getVelocity());
+            // double distance = canrange.getDistance().getValueAsDouble();
+            // close = distance < .43 && distance > .35;
+            // SmartDashboard.putBoolean("canrange", close);
+            // SmartDashboard.putNumber("canrange distance", distance);
+        }
+    }
+}
 }

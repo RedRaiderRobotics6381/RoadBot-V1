@@ -11,6 +11,9 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 public class Constants {
+  public static class TurretConstants {
+    public static final int TURRET_CONSTANT = 1; // TODO change
+  }
     public static class Vision {
         public static final String kCameraName = "camAprTgHigh";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
@@ -37,7 +40,7 @@ public class Constants {
   }
 
   public static class AprilTagConstants {
-    public static int HumanPlayerLeft = 4; // 1 red, 13 blue
+    public static int HumanPlayerLeft = 0; // 1 red, 13 blue
     public static int HumanPlayerRight = 0; // 2 red, 12 blue
     public static int Processor = 0; // 3 red, 11 blue
     public static int BargeFront = 0; // 5, 14 both blue and red are on the same side of the field

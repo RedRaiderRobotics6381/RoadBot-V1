@@ -38,6 +38,9 @@ public class Constants {
     public static final double ANGULAR_ACCELERATION = 360; //Degrees per second squared
   
   }
+  public static class RotateConstants {
+    public static final int ROTATE_MOTOR_PORT = 0;
+  }
 
   public static class AprilTagConstants {
     public static int HumanPlayerLeft = 0; // 1 red, 13 blue

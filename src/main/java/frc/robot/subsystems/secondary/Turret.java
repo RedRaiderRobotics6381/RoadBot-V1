@@ -1,15 +1,15 @@
 
 package frc.robot.subsystems.Secondary;
 
-import frc.robot.Robot;
-import edu.wpi.first.math.system.plant.DCMotor;
+//import frc.robot.Robot;
+//import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.sim.SparkAbsoluteEncoderSim;
-import com.revrobotics.sim.SparkFlexSim;
+//import com.revrobotics.sim.SparkAbsoluteEncoderSim;
+//import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -22,17 +22,31 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-public class Turret {
+public class Turret extends SubsystemBase{
     
+private SparkFlex turretAngMtr;
+public AbsoluteEncoder turretAngEnc;
+public SparkClosedLoopController turretAngPID;
+//private SparkFlexSim turretAngMtrSim;
+//private SparkAbsoluteEncoderSim turretAngEncSim;
+private SparkFlexConfig turretAngMtrCfg;
+
+private double angkP = 0.010, angkI = 0.0, angkD = 0.15;// p was 0.002
+private double angkFF = 0.0; // 0.0075
+private double angOutputMin = -0.5;
+private double angOutputMax = 1.0;
+public boolean close;
+
 public Turret() {
 
-        turretAngMtr = new SparkFlex(, MotorType.kBrushless);
-        turretAngMtrCfg = new SparkFlexConfig();
+turretAngMtr = new SparkFlex(TurretConstants.TURRET_CONSTANT, MotorType.kBrushless);
+turretAngMtrCfg = new SparkFlexConfig();
 
-        turretAngPID = .getClosedLoopController();
-        turretAngEnc = .getAbsoluteEncoder();
+turretAngPID = turretAngMtr.getClosedLoopController();
+ 
+turretAngEnc = turretAngMtr.getAbsoluteEncoder();
 
-        turretAngMtrCfg
+     turretAngMtrCfg
                 .inverted(false)
                 .voltageCompensation(12.0)
                 .smartCurrentLimit(50)
@@ -50,17 +64,9 @@ public Turret() {
                 .pid(angkP, angkI, angkD)
                 .outputRange(angOutputMin, angOutputMax)
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-        turretAngMtr.configure(armAngMtrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        turretAngMtr.configure(turretAngMtrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // Add motors to the simulation
-        if (Robot.isSimulation()) {
-             = new SparkFlexSim(, DCMotor.getNEO(1));
-             = new SparkAbsoluteEncoderSim();
-            .setPosition(190);
-            .setPosition(190);
-            .setVelocity(0);
-            .setVelocity(0);
-        }
+    
     }
 
     // public void runIntakeCmd(double speed) {
@@ -107,18 +113,18 @@ public Turret() {
     // this);
     // }
 
-    public FunctionalCommand setRotateAngleCmd(double pos) {
+    public FunctionalCommand setTurretCmd(double pos) {
         return new FunctionalCommand(
                 () -> {
                 },
-                () -> setRotateAngle(pos), interrupted -> {
+                () -> setturret(pos), interrupted -> {
                 },
-                () -> (Math.abs(pos - .getPosition()) <= 2.0 || (Math.abs(pos - .getPosition()) <= 4.0 && Math.abs(a.getVelocity()) <= 5.0)),
+                () -> (Math.abs(pos - turretAngEnc.getPosition()) <= 2.0 || (Math.abs(pos - turretAngEnc.getPosition()) <= 4.0 && Math.abs(turretAngEnc.getVelocity()) <= 5.0)),
                 this);
     }
 
-    public void setRotateAngle(double angle) {
-        .setReference(angle, SparkMax.ControlType.kPosition);
+    public void setturret(double angle) {
+        turretAngPID.setReference(angle, SparkMax.ControlType.kPosition);
 
         // From Minibot
         // This is an arbitrary feedforward value that is multiplied by the positon of
@@ -132,11 +138,7 @@ public Turret() {
         // test test!
         // Increase angkFF with the arm horizontal until just before it starts to drift
         // upward
-        armAngPID.setReference(angle,
-                SparkMax.ControlType.kPosition,
-                ClosedLoopSlot.kSlot0,
-                angkFF * Math.abs(Math.cos(Math.toRadians(angle - 115))),
-                ArbFFUnits.kPercentOut);
+       
 
         // if (Robot.isSimulation()) {
         // coralRotatePID.setReference(angle, SparkMax.ControlType.kPosition);
@@ -147,36 +149,13 @@ public Turret() {
     // pusherServo.set(1);
     // }
 
-    @Override
-    public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
-        .setPosition(.getPosition());
-        .iterate(.getPosition(), .getBusVoltage(), .005);
-    }
-
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-        if (Robot.isSimulation()) {
-            SmartDashboard.putNumber(.getPosition());
-        } else {
-            SmartDashboard.putNumber(.getPosition());
-            SmartDashboard.putNumber(.getVelocity());
-            // double distance = canrange.getDistance().getValueAsDouble();
-            // close = distance < .43 && distance > .35;
-            // SmartDashboard.putBoolean("canrange", close);
-            // SmartDashboard.putNumber("canrange distance", distance);
+    
 
 
 
 
 
 }
-
-
-
-}
-
 
 
 

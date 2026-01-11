@@ -117,13 +117,13 @@ turretAngEnc = turretAngMtr.getAbsoluteEncoder();
         return new FunctionalCommand(
                 () -> {
                 },
-                () -> setturret(pos), interrupted -> {
+                () -> setTurret(pos), interrupted -> {
                 },
                 () -> (Math.abs(pos - turretAngEnc.getPosition()) <= 2.0 || (Math.abs(pos - turretAngEnc.getPosition()) <= 4.0 && Math.abs(turretAngEnc.getVelocity()) <= 5.0)),
                 this);
     }
 
-    public void setturret(double angle) {
+    public void setTurret(double angle) {
         turretAngPID.setReference(angle, SparkMax.ControlType.kPosition);
 
         // From Minibot

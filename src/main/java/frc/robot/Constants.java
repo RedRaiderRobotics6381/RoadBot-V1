@@ -52,8 +52,24 @@ public class Constants {
     public static final int ROTATE_MOTOR_PORT = 0;
   }
 
+  public static class PhysicalConstants {
+    public static double SHOOTER_HEIGHT = 0; //TODO Change Later!
+    
+  }
+  public static class ConstantValues {
+    public static double SHOOTER_RPM = 700;
+    public static double SHOOTER_SPEED = 0; //TODO Change Later
+    
+  }
+  public static class FieldConstants {
+    public static double SMALLEST_RADIUS_OF_HUB = 25.5; //inches
+    public static double HEIGHT_OF_HUB = 72; //inches
+    public static double SMALLEST_RADIUS_OF_HOLE = 0; //TODO Change Later!!
+    public static double HEIGHT_OF_HOLE = 0; //TODO Change Later!!
+    
+  }
   public static class AprilTagConstants {
-    public static int HumanPlayerLeft = 0; // 1 red, 13 blue
+    public static int HumanPlayerLeft = 4; // 1 red, 13 blue
     public static int HumanPlayerRight = 0; // 2 red, 12 blue
     public static int Processor = 0; // 3 red, 11 blue
     public static int BargeFront = 0; // 5, 14 both blue and red are on the same side of the field

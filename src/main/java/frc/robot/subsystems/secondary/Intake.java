@@ -1,4 +1,4 @@
-package frc.robot.subsystems.secondary;
+package frc.robot.subsystems.Secondary;
 import frc.robot.Robot;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;

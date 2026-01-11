@@ -37,13 +37,13 @@ public class Indexer extends SubsystemBase {
 
   public Indexer() {
 
-    indexMtrLdr = new SparkFlex(IndexerConstants.INDEXER_CONSTANTS, MotorType.kBrushless);
-    indexMtrFlw = new SparkFlex(IndexerConstants.INDEXER_CONSTANTS, MotorType.kBrushless);
+    indexMtrLdr = new SparkFlex(IndexerConstants.INDEXER_MOTOR_PORT, MotorType.kBrushless);
+    indexMtrFlw = new SparkFlex(IndexerConstants.INDEXER_MOTOR_PORT, MotorType.kBrushless);
     indexMtrLdrCfg = new SparkFlexConfig();
     indexMtrFlwCfg = new SparkFlexConfig();
     indexMtrLdrEnc = indexMtrLdr.getEncoder();
     indexMtrFlwEnc = indexMtrFlw.getEncoder();
-    coralSensor = new DigitalInput(CoralConstants.BEAM_BREAK_SENSOR_PORT);
+    //coralSensor = new DigitalInput(CoralConstants.BEAM_BREAK_SENSOR_PORT);
 
     indexMtrLdrCfg
         .inverted(true)

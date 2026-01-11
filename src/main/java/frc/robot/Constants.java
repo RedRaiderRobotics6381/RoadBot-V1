@@ -14,6 +14,16 @@ public class Constants {
   public static class TurretConstants {
     public static final int TURRET_CONSTANT = 1; // TODO change
   }
+  public static class IndexerConstants {
+    public static final int INDEXER_MOTOR_PORT = 0;
+  }
+  public static class IntakeConstants {
+    public static final int INTAKE_MOTOR_PORT = 0;
+  }
+  public static class ClimberConstants {
+    public static final int LEFT_CLIMBER_MOTOR_PORT = 0;
+    public static final int RIGHT_CLIMBER_MOTOR_PORT = 0;
+  }
     public static class Vision {
         public static final String kCameraName = "camAprTgHigh";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.

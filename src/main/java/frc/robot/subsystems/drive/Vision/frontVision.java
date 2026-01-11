@@ -22,11 +22,7 @@
  * SOFTWARE.
  */
 
-<<<<<<<< Updated upstream:src/main/java/frc/robot/subsystems/Secondary/Vision.java
- package frc.robot.subsystems.Secondary;
-========
  package frc.robot.subsystems.drive.Vision;
->>>>>>>> Stashed changes:src/main/java/frc/robot/subsystems/drive/Vision/backVision.java
 
  import static frc.robot.Constants.Vision.*;
  
@@ -53,7 +49,7 @@ import java.util.List;
  import org.photonvision.simulation.VisionSystemSim;
  import org.photonvision.targeting.PhotonTrackedTarget;
  
- public class backVision {
+ public class frontVision {
      private final PhotonCamera camera;
      private final PhotonPoseEstimator photonEstimator;
      private Matrix<N3, N1> curStdDevs;
@@ -67,12 +63,12 @@ import java.util.List;
       * @param estConsumer Lamba that will accept a pose estimate and pass it to your desired {@link
       *     edu.wpi.first.math.estimator.SwerveDrivePoseEstimator}
       */
-     public backVision(EstimateConsumer estConsumer) {
+     public frontVision(EstimateConsumer estConsumer) {
          this.estConsumer = estConsumer;
-         camera = new PhotonCamera(kBackCameraName);
+         camera = new PhotonCamera(kFrontCameraName);
  
          photonEstimator =
-                 new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kBackRobotToCam);
+                 new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kFrontRobotToCam);
          photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
  
          // ----- Simulation
@@ -92,7 +88,7 @@ import java.util.List;
              // targets.
              cameraSim = new PhotonCameraSim(camera, cameraProp);
              // Add the simulated camera to view the targets on this simulated field.
-             visionSim.addCamera(cameraSim, kBackRobotToCam);
+             visionSim.addCamera(cameraSim, kFrontRobotToCam);
  
              cameraSim.enableDrawWireframe(true);
          }

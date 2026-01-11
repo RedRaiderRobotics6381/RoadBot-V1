@@ -1,4 +1,4 @@
-package frc.robot.Commands;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
@@ -6,7 +6,6 @@ import frc.robot.subsystems.Secondary.Indexer;
 import frc.robot.subsystems.Secondary.Outtake;
 import frc.robot.subsystems.Secondary.RotateSubsystem;
 import frc.robot.subsystems.Secondary.Turret;
-import frc.robot.subsystems.Secondary.Vision;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 
 public class AutoShooter extends Command {

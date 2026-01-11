@@ -7,14 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-<<<<<<< Updated upstream
-import frc.robot.subsystems.Secondary.Vision;
-=======
 import frc.robot.subsystems.drive.Vision.backVision;
 import frc.robot.subsystems.drive.Vision.frontVision;
 import frc.robot.subsystems.drive.Vision.leftVision;
 import frc.robot.subsystems.drive.Vision.rightVision;
->>>>>>> Stashed changes
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;

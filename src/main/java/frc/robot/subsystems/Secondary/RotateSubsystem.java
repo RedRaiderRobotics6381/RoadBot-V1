@@ -6,6 +6,12 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.sim.SparkFlexSim;
@@ -23,12 +29,8 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 public class RotateSubsystem extends SubsystemBase {
     
-    private SparkFlex armAngMtr;
-    public AbsoluteEncoder armAngEnc;
-    public SparkClosedLoopController armAngPID;
-    private SparkFlexSim armAngMtrSim;
-    private SparkAbsoluteEncoderSim armAngEncSim;
-    private SparkFlexConfig armAngMtrCfg;
+    public TalonFX armAngMtr;
+    private MotionMagicVoltage motionMagicVoltage;
 
     private double angkP = 0.010, angkI = 0.0, angkD = 0.15;// p was 0.002
     private double angkFF = 0.0; // 0.0075
@@ -38,41 +40,25 @@ public class RotateSubsystem extends SubsystemBase {
 
 
     public RotateSubsystem() {
-        armAngMtr = new SparkFlex(RotateConstants.ROTATE_MOTOR_PORT, MotorType.kBrushless);
-        armAngMtrCfg = new SparkFlexConfig();
+        armAngMtr = new TalonFX(RotateConstants.ROTATE_MOTOR_PORT);
+        TalonFXConfiguration armAngMtrCfg = new TalonFXConfiguration();
+        motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
 
-        armAngPID = armAngMtr.getClosedLoopController();
-        armAngEnc = armAngMtr.getAbsoluteEncoder();
+        armAngMtrCfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        armAngMtrCfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        armAngMtrCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+        armAngMtrCfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        armAngMtrCfg
-                .inverted(false)
-                .voltageCompensation(12.0)
-                .smartCurrentLimit(50)
-                .idleMode(IdleMode.kBrake);
-        armAngMtrCfg.absoluteEncoder
-                .positionConversionFactor(360)
-                .inverted(false)
-                .zeroOffset(0.34722222);
-        armAngMtrCfg.softLimit
-                .forwardSoftLimit(200.0)
-                .reverseSoftLimit(60.0)
-                .forwardSoftLimitEnabled(true)
-                .reverseSoftLimitEnabled(true);
-        armAngMtrCfg.closedLoop
-                .pid(angkP, angkI, angkD)
-                .outputRange(angOutputMin, angOutputMax)
-                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-        armAngMtr.configure(armAngMtrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        armAngMtrCfg.CurrentLimits.SupplyCurrentLimit = 30.0;
+        armAngMtrCfg.CurrentLimits.StatorCurrentLimit = 50.0;
 
-        // Add motors to the simulation
-        if (Robot.isSimulation()) {
-            armAngMtrSim = new SparkFlexSim(armAngMtr, DCMotor.getNEO(1));
-            armAngEncSim = new SparkAbsoluteEncoderSim(armAngMtr);
-            armAngMtrSim.setPosition(190);
-            armAngEncSim.setPosition(190);
-            armAngMtrSim.setVelocity(0);
-            armAngEncSim.setVelocity(0);
-        }
+        armAngMtrCfg.Slot0.kP = 5.0;
+        armAngMtrCfg.Slot0.kI = 0;
+        armAngMtrCfg.Slot0.kD = 0;
+
+        armAngMtr.getConfigurator().apply(armAngMtrCfg);
+
+       
     }
 
     public FunctionalCommand setRotateAngleCmd(double pos) {
@@ -81,36 +67,19 @@ public class RotateSubsystem extends SubsystemBase {
                 },
                 () -> setRotateAngle(pos), interrupted -> {
                 },
-                () -> (Math.abs(pos - armAngEnc.getPosition()) <= 2.0 || (Math.abs(pos - armAngEnc.getPosition()) <= 4.0 && Math.abs(armAngEnc.getVelocity()) <= 5.0)),
+                () -> (Math.abs(pos - armAngMtr.getPosition().getValueAsDouble()) <= 2.0 || (Math.abs(pos - armAngMtr.getPosition().getValueAsDouble()) <= 4.0 && Math.abs(armAngMtr.getVelocity().getValueAsDouble()) <= 5.0)),
                 this);
     }
     public void setRotateAngle(double angle) {
-        armAngPID.setReference(angle, SparkMax.ControlType.kPosition);
-
-        armAngPID.setReference(angle,
-        SparkMax.ControlType.kPosition,
-        ClosedLoopSlot.kSlot0,
-        angkFF * Math.abs(Math.cos(Math.toRadians(angle - 115))),
-        ArbFFUnits.kPercentOut);
+        armAngMtr.setControl(motionMagicVoltage.withPosition(angle));
     }
 
-    public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
-        armAngEncSim.setPosition(armAngMtrSim.getPosition());
-        armAngMtrSim.iterate(armAngEncSim.getPosition(), armAngMtrSim.getBusVoltage(), .005);
-    }
     public void periodic() {
         // This method will be called once per scheduler run
-        if (Robot.isSimulation()) {
-            SmartDashboard.putNumber("Coarl Arm Position", armAngEncSim.getPosition());
-        } else {
-            SmartDashboard.putNumber("Coral Arm Position", armAngEnc.getPosition());
-            SmartDashboard.putNumber("Coral Arm Speed", armAngEnc.getVelocity());
-            // double distance = canrange.getDistance().getValueAsDouble();
-            // close = distance < .43 && distance > .35;
-            // SmartDashboard.putBoolean("canrange", close);
-            // SmartDashboard.putNumber("canrange distance", distance);
-        }
+    
+            SmartDashboard.putNumber("Fuel Arm Position", armAngMtr.getPosition().getValueAsDouble());
+            SmartDashboard.putNumber("Fuel Arm Speed", armAngMtr.getVelocity().getValueAsDouble());
+    
     }
 }
 

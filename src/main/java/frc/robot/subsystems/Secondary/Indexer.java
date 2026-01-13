@@ -1,5 +1,11 @@
 package frc.robot.subsystems.Secondary;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -7,6 +13,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
@@ -18,133 +25,65 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IndexerConstants;
+import frc.robot.Constants.IntakeConstants;
 //import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Robot;
 
 public class Indexer extends SubsystemBase {
 
-  public SparkFlex indexMtrLdr;
-  public SparkFlex indexMtrFlw;
-  public RelativeEncoder indexMtrLdrEnc;
-  public RelativeEncoder indexMtrFlwEnc;
-  private SparkFlexSim indexMtrLdrSim;
-  private SparkFlexSim indexMtrFlwSim;
-  private SparkRelativeEncoderSim indexMtrLdrEncSim;
-  private SparkRelativeEncoderSim indexMtrFlwEncSim;
-  private SparkFlexConfig indexMtrLdrCfg;
-  private SparkFlexConfig indexMtrFlwCfg;
+  private final VoltageOut voltageCntrl;
+  private final TalonFX indexMtrLdr;
+  private final TalonFX indexMtrFlw;
+
+
+ 
+  
   public DigitalInput coralSensor;
 
   public Indexer() {
 
-    indexMtrLdr = new SparkFlex(IndexerConstants.INDEXER_MOTOR_PORT, MotorType.kBrushless);
-    indexMtrFlw = new SparkFlex(IndexerConstants.INDEXER_MOTOR_PORT, MotorType.kBrushless);
-    indexMtrLdrCfg = new SparkFlexConfig();
-    indexMtrFlwCfg = new SparkFlexConfig();
-    indexMtrLdrEnc = indexMtrLdr.getEncoder();
-    indexMtrFlwEnc = indexMtrFlw.getEncoder();
+    voltageCntrl = new VoltageOut(0.0);
+    TalonFXConfiguration indexMtrLdrCon = new TalonFXConfiguration();
+
+    indexMtrLdr = new TalonFX(IntakeConstants.INTAKE_MOTOR_PORT);
+    indexMtrFlw = new TalonFX(IntakeConstants.INTAKE_MOTOR_PORT);
+    indexMtrFlw.setControl(new Follower(IntakeConstants.INTAKE_MOTOR_PORT, false));
+    
+
+    indexMtrLdrCon.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    indexMtrLdrCon.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    indexMtrLdrCon.CurrentLimits.SupplyCurrentLimitEnable = true;
+    indexMtrLdrCon.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    indexMtrLdrCon.CurrentLimits.SupplyCurrentLimit = 30.0;
+    indexMtrLdrCon.CurrentLimits.StatorCurrentLimit = 50.0;
+
+    indexMtrLdrCon.Slot0.kP = 5.0;
+    indexMtrLdrCon.Slot0.kI = 0;
+    indexMtrLdrCon.Slot0.kD = 0;
+
+    indexMtrLdr.getConfigurator().apply(indexMtrLdrCon);
+    indexMtrFlw.getConfigurator().apply(indexMtrLdrCon);
+    
+    
+
     //coralSensor = new DigitalInput(CoralConstants.BEAM_BREAK_SENSOR_PORT);
 
-    indexMtrLdrCfg
-        .inverted(true)
-        .voltageCompensation(12.0)
-        .smartCurrentLimit(80)
-        .idleMode(IdleMode.kBrake);
-    indexMtrLdr.configure(indexMtrLdrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    indexMtrFlwCfg
-        .follow(indexMtrLdr, true)
-        .voltageCompensation(12.0)
-        .smartCurrentLimit(80)
-        .idleMode(IdleMode.kBrake);
-    indexMtrFlw.configure(indexMtrFlwCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    if (Robot.isSimulation()) {
-      indexMtrLdrSim = new SparkFlexSim(indexMtrLdr, DCMotor.getNEO(1));
-      indexMtrLdrEncSim = new SparkRelativeEncoderSim(indexMtrLdr);
-      indexMtrFlwSim = new SparkFlexSim(indexMtrLdr, DCMotor.getNEO(1));
-      indexMtrFlwEncSim = new SparkRelativeEncoderSim(indexMtrLdr);
-    }
   }
 
-  public FunctionalCommand IntakeCmd() {
-    return new FunctionalCommand(() -> {
-    },
-        () -> indexMtrLdr.set(-0.06),
-        interrupted -> indexMtrLdr.set(0),
-        () -> coralSensor.get() == true,
-        this);
-  }
 
-  public StartEndCommand AccurateOuttake(){
-    return new StartEndCommand(
-      () -> indexMtrLdr.set(-0.05), 
-      () -> indexMtrLdr.set(0), 
-      this);
-  }
-  public StartEndCommand Retract(){
-    return new StartEndCommand(
-      () -> indexMtrLdr.set(0.075), 
-      () -> indexMtrLdr.set(0), 
-      this);
-  }
 
-  public FunctionalCommand OuttakeCmd() {
-    return new FunctionalCommand(() -> {
-    },
-        () -> indexMtrLdr.set(-0.075),
-        interrupted -> indexMtrLdr.set(0),
-        () -> coralSensor.get() == false,
-        this);
-  }
-
-  public FunctionalCommand AutoOuttakeCmd() {
-    return new FunctionalCommand(() -> {
-    },
-        () -> indexMtrLdr.set(-0.1),
-        interrupted -> indexMtrLdr.set(0),
-        () -> coralSensor.get() == false,
-        this);
-  }
-
-  public Command algaeOuttakeCmd() {
-    return this.runEnd(
-        () -> {
-          // runIntake(Constants.IntakeConstants.INTAKE_SPEED);
-            indexMtrLdr.set(0.50);
-          
-        }, () -> {
-          indexMtrLdr.set(0.5);
-        });
-  }
-
-  public Command algaeIntakeCmd() {
-    return this.runEnd(
-        () -> {
-          // runIntake(Constants.IntakeConstants.INTAKE_SPEED);
-            indexMtrLdr.set(-1.0);
-        }, () -> {
-          indexMtrLdr.set(0.0);
-        });
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-    indexMtrLdrEncSim.setPosition(indexMtrLdrSim.getPosition());
-    indexMtrFlwEncSim.setPosition(indexMtrFlwSim.getPosition());
-    indexMtrLdrSim.iterate(indexMtrLdrEncSim.getPosition(), indexMtrLdrSim.getBusVoltage(), .005);
-    indexMtrFlwSim.iterate(indexMtrLdrEncSim.getPosition(), indexMtrFlwSim.getBusVoltage(), .005);
-  }
+ 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (Robot.isSimulation()) {
-      SmartDashboard.putNumber("Outtake Speed", indexMtrLdrSim.getVelocity());
-    } else {
-      SmartDashboard.putNumber("Outtake Speed", indexMtrLdrEnc.getVelocity());
+    
+      SmartDashboard.putNumber("Outtake Speed", indexMtrLdr.getVelocity().getValueAsDouble());
       SmartDashboard.putBoolean("CoralSensor", coralSensor.get());
-    }
   }
+
+  public void setVoltage(double volt) {
+    indexMtrLdr.setControl(voltageCntrl.withOutput(volt));
+}
 }

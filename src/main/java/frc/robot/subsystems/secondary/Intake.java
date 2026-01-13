@@ -1,32 +1,26 @@
 package frc.robot.subsystems.Secondary;
-import frc.robot.Robot;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.sim.SparkAbsoluteEncoderSim;
-import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
+
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
-    private SparkFlex armVelMtr;
-    public AbsoluteEncoder armVelEnc;
-    public SparkClosedLoopController armVelPID;
-    private SparkFlexSim armVelSim;
-    private SparkAbsoluteEncoderSim armVelEncSim;
-    private SparkFlexConfig armVelMtrCfg;
+
+    private final VoltageOut voltageCntrl;
+    private final TalonFX intVelMtr;
+//     private final TalonFX armVelSim;
+//     private TalonFX armVelEncSim;
 
     private double velkP = 1.00, velkI = 0.0, velkD = 0.00;// p was 0.002
     private double velkFF = 0.0; // 0.0075
@@ -35,39 +29,33 @@ public class Intake extends SubsystemBase {
     public boolean close;
 
 public Intake() {
-    armVelMtr = new SparkFlex(IntakeConstants.INTAKE_MOTOR_PORT, MotorType.kBrushless);
-    armVelMtrCfg = new SparkFlexConfig();
 
-    armVelPID = armVelMtr.getClosedLoopController();
-    armVelEnc = armVelMtr.getAbsoluteEncoder();
+    voltageCntrl = new VoltageOut(0.0);
+    TalonFXConfiguration intVelMtrCfg = new TalonFXConfiguration();
 
-    armVelMtrCfg
-            .inverted(false)
-            .voltageCompensation(12.0)
-            .smartCurrentLimit(50)
-            .idleMode(IdleMode.kCoast);
-    armVelMtrCfg.absoluteEncoder
-            .inverted(false);
-    armVelMtrCfg.closedLoop
-            .pid(velkP, velkI, velkD)
-            .outputRange(velOutputMin, velOutputMax)
-            .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-    armVelMtr.configure(armVelMtrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    intVelMtr = new TalonFX(IntakeConstants.INTAKE_MOTOR_PORT);
 
-}
+    intVelMtrCfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    intVelMtrCfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    intVelMtrCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+    intVelMtrCfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-public FunctionalCommand setIntakeCmd(double vel) {
-        return new FunctionalCommand(
-                () -> {
-                },
-                () -> setVel(vel), interrupted -> {
-                },
-                () -> (Math.abs(vel - armVelEnc.getVelocity()) <= 50),
-                this);
-    }
+    intVelMtrCfg.CurrentLimits.SupplyCurrentLimit = 30.0;
+    intVelMtrCfg.CurrentLimits.StatorCurrentLimit = 50.0;
 
-    public void setVel(double vel) {
-        armVelPID.setReference(vel, SparkMax.ControlType.kVelocity);
+    intVelMtrCfg.Slot0.kP = 5.0;
+    intVelMtrCfg.Slot0.kI = 0;
+    intVelMtrCfg.Slot0.kD = 0;
+
+    intVelMtr.getConfigurator().apply(intVelMtrCfg);
 
 }
+
+
+    public void setVoltage(double volt) {
+        intVelMtr.setControl(voltageCntrl.withOutput(volt));
+}
+
+
+
 }

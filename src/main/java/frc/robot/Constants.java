@@ -25,9 +25,18 @@ public class Constants {
     public static final int RIGHT_CLIMBER_MOTOR_PORT = 0;
   }
     public static class Vision {
-        public static final String kCameraName = "camAprTgHigh";
+        public static final String kFrontCameraName = "camFront";
+        public static final String kBackCameraName = "camBack";
+        public static final String kLeftCameraName = "camLeft";
+        public static final String kRightCameraName = "camRight";
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        public static final Transform3d kRobotToCam =
+        public static final Transform3d kFrontRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+        public static final Transform3d kBackRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+        public static final Transform3d kLeftRobotToCam =
+                new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+        public static final Transform3d kRightRobotToCam =
                 new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
 
         // The layout of the AprilTags on the field
@@ -53,11 +62,23 @@ public class Constants {
   }
 
   public static class PhysicalConstants {
-    public static final double SHOOTER_HEIGHT = 0;
+    public static double SHOOTER_HEIGHT = 0; //TODO Change Later!
+    
   }
-
+  public static class ConstantValues {
+    public static double SHOOTER_RPM = 700;
+    public static double SHOOTER_SPEED = 0; //TODO Change Later
+    
+  }
+  public static class FieldConstants {
+    public static double SMALLEST_RADIUS_OF_HUB = 25.5; //inches
+    public static double HEIGHT_OF_HUB = 72; //inches
+    public static double SMALLEST_RADIUS_OF_HOLE = 0; //TODO Change Later!!
+    public static double HEIGHT_OF_HOLE = 0; //TODO Change Later!!
+    
+  }
   public static class AprilTagConstants {
-    public static int HumanPlayerLeft = 0; // 1 red, 13 blue
+    public static int HumanPlayerLeft = 4; // 1 red, 13 blue
     public static int HumanPlayerRight = 0; // 2 red, 12 blue
     public static int Processor = 0; // 3 red, 11 blue
     public static int BargeFront = 0; // 5, 14 both blue and red are on the same side of the field

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
- package frc.robot;
+ package frc.robot.subsystems.drive.Vision;
 
  import static frc.robot.Constants.Vision.*;
  
@@ -35,7 +35,10 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
  import edu.wpi.first.math.numbers.N3;
  import edu.wpi.first.wpilibj.smartdashboard.Field2d;
- import java.util.List;
+import frc.robot.Constants;
+import frc.robot.Robot;
+
+import java.util.List;
  import java.util.Optional;
  import org.photonvision.EstimatedRobotPose;
  import org.photonvision.PhotonCamera;
@@ -46,7 +49,7 @@ import edu.wpi.first.math.numbers.N1;
  import org.photonvision.simulation.VisionSystemSim;
  import org.photonvision.targeting.PhotonTrackedTarget;
  
- public class Vision {
+ public class leftVision {
      private final PhotonCamera camera;
      private final PhotonPoseEstimator photonEstimator;
      private Matrix<N3, N1> curStdDevs;
@@ -60,12 +63,12 @@ import edu.wpi.first.math.numbers.N1;
       * @param estConsumer Lamba that will accept a pose estimate and pass it to your desired {@link
       *     edu.wpi.first.math.estimator.SwerveDrivePoseEstimator}
       */
-     public Vision(EstimateConsumer estConsumer) {
+     public leftVision(EstimateConsumer estConsumer) {
          this.estConsumer = estConsumer;
-         camera = new PhotonCamera(kCameraName);
+         camera = new PhotonCamera(kLeftCameraName);
  
          photonEstimator =
-                 new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
+                 new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kLeftRobotToCam);
          photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
  
          // ----- Simulation
@@ -85,7 +88,7 @@ import edu.wpi.first.math.numbers.N1;
              // targets.
              cameraSim = new PhotonCameraSim(camera, cameraProp);
              // Add the simulated camera to view the targets on this simulated field.
-             visionSim.addCamera(cameraSim, kRobotToCam);
+             visionSim.addCamera(cameraSim, kLeftRobotToCam);
  
              cameraSim.enableDrawWireframe(true);
          }

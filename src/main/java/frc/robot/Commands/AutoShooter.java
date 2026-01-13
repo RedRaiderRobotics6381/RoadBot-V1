@@ -47,17 +47,17 @@ public class AutoShooter extends Command {
     
         upperBoundAngle = Math.atan((Math.pow(ConstantValues.SHOOTER_SPEED, 2) + 
                           Math.sqrt(Math.pow(ConstantValues.SHOOTER_SPEED,4) - 
-                          192 * (192 * Math.pow(distance - FieldConstants.SMALLEST_RADIUS_OF_HOLE, 2) + 
+                          192 * (192 * Math.pow(distance + FieldConstants.SMALLEST_RADIUS_OF_HOLE, 2) + 
                           2 * (FieldConstants.HEIGHT_OF_HOLE - PhysicalConstants.SHOOTER_HEIGHT) * 
                           Math.pow(ConstantValues.SHOOTER_SPEED, 2)))) / 
-                          192 * (distance - FieldConstants.SMALLEST_RADIUS_OF_HOLE));
+                          192 * (distance + FieldConstants.SMALLEST_RADIUS_OF_HOLE));
     
         angle = (lowerBoundAngle + upperBoundAngle) / 2;
         m_rotate.setRotateAngleCmd(angle);
         
         yaw = Math.atan((158.5 - drivetrain.getState().Pose.getY())/(182.1 - drivetrain.getState().Pose.getX()));
         m_turret.setTurretCmd(yaw);
-        if(Math.abs(m_rotate.armAngEnc.getPosition() - angle) <= 1 && Math.abs(m_outtake.wheelSpeedMtr.getVelocity().getValueAsDouble() - ConstantValues.SHOOTER_RPM) <= 30 && Math.abs(m_turret.turretAngMtr.getPosition().getValueAsDouble() - yaw) <= 1){
+        if(Math.abs(m_rotate.armAngMtr.getPosition().getValueAsDouble() - angle) <= 1 && Math.abs(m_outtake.wheelSpeedMtr.getVelocity().getValueAsDouble() - ConstantValues.SHOOTER_RPM) <= 30 && Math.abs(m_turret.turretAngMtr.getPosition().getValueAsDouble() - yaw) <= 1){
             m_indexer.indexMtrLdr.set(1);
         } else {
             m_indexer.indexMtrLdr.set(0);

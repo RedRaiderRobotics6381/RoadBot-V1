@@ -17,8 +17,10 @@ public class Climber extends SubsystemBase {
     public TalonFXConfiguration  climbConfigLdr;
     public MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
 
-    private double kP = 0.15; 
+    private double kP = 0.15;
+    private double kI = 0;
     private double kD = 0.075;
+    private double kFF = 0;
     public DigitalInput limitSw;
     private boolean climberInitialized;
 
@@ -30,6 +32,7 @@ public class Climber extends SubsystemBase {
         limitSw = new DigitalInput(9);
 
         climbConfigLdr.Slot0.kP = kP;
+        climbConfigLdr.Slot0.kI = kI;
         climbConfigLdr.Slot0.kD = kD;
 
         climbConfigLdr.MotorOutput.NeutralMode = NeutralModeValue.Brake;

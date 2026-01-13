@@ -1,128 +1,76 @@
 package frc.robot.subsystems.Secondary;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkFlexSim;
-import com.revrobotics.sim.SparkRelativeEncoderSim;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import edu.wpi.first.math.system.plant.DCMotor;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import frc.robot.Robot;
 
 public class Climber extends SubsystemBase {
-   public SparkFlex elevMtrLdr;
-    public SparkFlex elevMtrFlw;
-    private SparkFlexConfig ldrCfg;
-    private SparkFlexConfig flwCfg;
-    public RelativeEncoder elevEncLdr;
-    public RelativeEncoder elevEncFlw;
-    public SparkClosedLoopController  elevPIDLdr;
-    public SparkClosedLoopController  elevPIDFlw;
-    private SparkFlexSim elevMtrLdrSim;
-    private SparkFlexSim elevMtrFlwSim;
-    private SparkRelativeEncoderSim elevEncLdrSim;
-    private SparkRelativeEncoderSim elevEncFlwSim;
-    private double kP = 0.15; //start p = 0.0005
+    public TalonFX climbMtrLdr;
+    public TalonFX climbMtrFlw;
+    public TalonFXConfiguration  climbConfigLdr;
+    public MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
+
+    private double kP = 0.15; 
     private double kD = 0.075;
-    private double kOutput = 1.0;
     public DigitalInput limitSw;
-    private boolean elevatorInitialized;
+    private boolean climberInitialized;
 
     public Climber() {
-        elevMtrLdr = new SparkFlex(ClimberConstants.LEFT_CLIMBER_MOTOR_PORT, MotorType.kBrushless);
-        elevMtrFlw = new SparkFlex(ClimberConstants.RIGHT_CLIMBER_MOTOR_PORT, MotorType.kBrushless);
-     limitSw = new DigitalInput(9);
+        climbMtrLdr = new TalonFX(ClimberConstants.LEFT_CLIMBER_MOTOR_PORT);
+        climbMtrFlw = new TalonFX(ClimberConstants.RIGHT_CLIMBER_MOTOR_PORT);
+        climbMtrFlw.setControl(new Follower(ClimberConstants.LEFT_CLIMBER_MOTOR_PORT, false));
+        climbConfigLdr = new TalonFXConfiguration();
+        limitSw = new DigitalInput(9);
 
-        ldrCfg = new SparkFlexConfig();
-        flwCfg = new SparkFlexConfig();
+        climbConfigLdr.Slot0.kP = kP;
+        climbConfigLdr.Slot0.kD = kD;
 
-        elevPIDLdr = elevMtrLdr.getClosedLoopController();
-        elevPIDFlw = elevMtrFlw.getClosedLoopController();
-
-        elevEncLdr = elevMtrLdr.getEncoder();
-        elevEncFlw = elevMtrFlw.getEncoder();
-
-        ldrCfg
-            .inverted(true)
-            .voltageCompensation(12.0)
-            .smartCurrentLimit(80)
-            .idleMode(IdleMode.kBrake);
-        ldrCfg
-            .encoder
-                .positionConversionFactor(0.225); //confirm conversion factor
-        ldrCfg
-            .softLimit
-                .forwardSoftLimit(24.0) 
-                .reverseSoftLimit(-1.0)
-                .forwardSoftLimitEnabled(true)
-                .reverseSoftLimitEnabled(true);
-        ldrCfg
-            .limitSwitch
-            .reverseLimitSwitchType(Type.kNormallyOpen)
-            .reverseLimitSwitchEnabled(true);
-        ldrCfg
-            .closedLoop
-                // .pidf(kLdrP, kLdrI, kLdrD, kLdrFF)
-                .p(kP)
-                .d(kD)
-                .outputRange(-kOutput, kOutput)
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder); 
-                
-                elevMtrLdr.configure(ldrCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-                flwCfg
-                    .follow(elevMtrLdr, false)
-                    .voltageCompensation(12.0)
-                    .smartCurrentLimit(80)
-                    .idleMode(IdleMode.kBrake);
-                elevMtrFlw.configure(flwCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        climbConfigLdr.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        climbConfigLdr.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
-                // Add motors to the simulation
-                if (Robot.isSimulation()) {
-                    elevMtrLdrSim = new SparkFlexSim(elevMtrLdr, DCMotor.getNEO(1));
-                    elevMtrFlwSim = new SparkFlexSim(elevMtrFlw, DCMotor.getNEO(1));
-                    elevEncLdrSim = new SparkRelativeEncoderSim(elevMtrLdr);
-                    elevEncFlwSim = new SparkRelativeEncoderSim(elevMtrFlw);
-                    elevMtrLdrSim.setPosition(0);
-                    elevMtrFlwSim.setPosition(0);
-                    elevEncLdrSim.setVelocity(0);
-                    elevEncFlwSim.setVelocity(0);
-                }
-            }
-            public void setElevatorHeight(double pos) {
-                elevPIDLdr.setReference(pos, SparkMax.ControlType.kPosition);}
-                public FunctionalCommand ElevatorHeightCmd(double height) {
-                    return new FunctionalCommand(() -> {},
-                        () -> setElevatorHeight(height),
-                        interrupted -> {},
-                        () -> Math.abs(height - elevEncLdr.getPosition()) <= 0.5,
-                        this);
-                }
-            
-                public FunctionalCommand ElevatorInitCmd() {
-                    return new FunctionalCommand(() -> elevatorInitialized = false,
-                                                    () -> {if(limitSw.get()){
-                                                            elevMtrLdr.set(-.125);
-                                                        } else if(!limitSw.get()) {
-                                                            elevMtrLdr.set(0);
-                                                            elevEncLdr.setPosition(0);
-                                                            elevatorInitialized = true;
-                                                        }},
-                                                    interrupted -> elevMtrLdr.set(0),
-                                                    () -> elevatorInitialized,
-                                                    this);
-                }
+        climbConfigLdr.CurrentLimits.SupplyCurrentLimitEnable = true;
+        climbConfigLdr.CurrentLimits.StatorCurrentLimitEnable = true;
+        climbConfigLdr.CurrentLimits.SupplyCurrentLimit = 30.0;
+        climbConfigLdr.CurrentLimits.StatorCurrentLimit = 50.0;
+
+        climbConfigLdr.MotionMagic.MotionMagicAcceleration = ClimberConstants.CLIMBER_ACCELERATION_CONSTRAINT;
+        climbConfigLdr.MotionMagic.MotionMagicCruiseVelocity = ClimberConstants.CLIMBER_VELOCITY_CONSTRAINT;
+
+        climbMtrLdr.getConfigurator().apply(climbConfigLdr);
+        climbMtrFlw.getConfigurator().apply(climbConfigLdr); 
     }
 
+    public void setClimberHeight(double pos) {
+        climbMtrLdr.setControl(motionMagicVoltage.withPosition(pos));
+    }
+
+    public FunctionalCommand ClimberHeightCmd(double height) {
+        return new FunctionalCommand(() -> {},
+            () -> setClimberHeight(height),
+            interrupted -> {},
+            () -> Math.abs(height - climbMtrLdr.getPosition().getValueAsDouble()) <= 0.5,
+            this);
+    }
+            
+    public FunctionalCommand ClimberInitCmd() {
+        return new FunctionalCommand(() -> climberInitialized = false,
+                                     () -> {
+                                        if(limitSw.get()){
+                                            climbMtrLdr.set(-.125);
+                                        } else if(!limitSw.get()) {
+                                            climbMtrLdr.set(0);
+                                            climbMtrLdr.setPosition(0);
+                                            climberInitialized = true;
+                                        }},
+                                     interrupted -> climbMtrLdr.set(0),
+                                     () -> climberInitialized,
+                                     this);
+    }
+}

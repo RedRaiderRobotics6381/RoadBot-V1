@@ -12,17 +12,33 @@ import edu.wpi.first.math.numbers.N3;
 
 public class Constants {
   public static class TurretConstants {
-    public static final int TURRET_CONSTANT = 1; // TODO change
+    public static final int TURRET_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int TURRET_ACCELERATION_CONSTRAINT = 0; //TODO Change Later!
+    public static final int TURRET_VELOCITY_CONSTRAINT = 0; //TODO Change Later!
   }
+
   public static class IndexerConstants {
-    public static final int INDEXER_MOTOR_PORT = 0;
+    public static final int INDEXER_MOTOR_PORT = 0; //TODO Change Later!
   }
+
   public static class IntakeConstants {
-    public static final int INTAKE_MOTOR_PORT = 0;
+    public static final int INTAKE_MOTOR_PORT = 0; //TODO Change Later!
   }
+
   public static class ClimberConstants {
-    public static final int LEFT_CLIMBER_MOTOR_PORT = 0;
-    public static final int RIGHT_CLIMBER_MOTOR_PORT = 0;
+    public static final int LEFT_CLIMBER_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int RIGHT_CLIMBER_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int CLIMBER_ACCELERATION_CONSTRAINT = 0; //TODO Change Later!
+    public static final int CLIMBER_VELOCITY_CONSTRAINT = 0; //TODO Change Later!
+  }
+
+  public static class RotateConstants {
+    public static final int ROTATE_MOTOR_PORT = 0; //TODO Change Later!
+  }
+
+  public static class OuttakeConstants {
+    public static final int OUTTAKE_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int OUTTAKE_ACCELERATION_CONSTRAINT = 0; //TODO Change Later!
   }
     public static class Vision {
         public static final String kFrontCameraName = "camFront";
@@ -57,24 +73,22 @@ public class Constants {
     public static final double ANGULAR_ACCELERATION = 360; //Degrees per second squared
   
   }
-  public static class RotateConstants {
-    public static final int ROTATE_MOTOR_PORT = 0;
-  }
+
 
   public static class PhysicalConstants {
     public static double SHOOTER_HEIGHT = 0; //TODO Change Later!
     
   }
   public static class ConstantValues {
-    public static double SHOOTER_RPM = 700;
+    public static double SHOOTER_RPM = 700; //TODO Change Later
     public static double SHOOTER_SPEED = 0; //TODO Change Later
     
   }
   public static class FieldConstants {
     public static double SMALLEST_RADIUS_OF_HUB = 25.5; //inches
     public static double HEIGHT_OF_HUB = 72; //inches
-    public static double SMALLEST_RADIUS_OF_HOLE = 0; //TODO Change Later!!
-    public static double HEIGHT_OF_HOLE = 0; //TODO Change Later!!
+    public static double SMALLEST_RADIUS_OF_HOLE = 11.7; //inches
+    public static double HEIGHT_OF_HOLE = 56; //inches
     
   }
   public static class AprilTagConstants {

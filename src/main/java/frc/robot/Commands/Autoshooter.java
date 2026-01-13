@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
@@ -57,8 +57,10 @@ public class AutoShooter extends Command {
         
         yaw = Math.atan((158.5 - drivetrain.getState().Pose.getY())/(182.1 - drivetrain.getState().Pose.getX()));
         m_turret.setTurretCmd(yaw);
-        if(Math.abs(m_rotate.armAngEnc.getPosition() - angle) <= 1 && Math.abs(m_outtake.wheelSpeedEnc.getVelocity() - ConstantValues.SHOOTER_RPM) <= 30 && Math.abs(m_turret.turretAngEnc.getPosition() - yaw) <= 1){
+        if(Math.abs(m_rotate.armAngEnc.getPosition() - angle) <= 1 && Math.abs(m_outtake.wheelSpeedMtr.getVelocity().getValueAsDouble() - ConstantValues.SHOOTER_RPM) <= 30 && Math.abs(m_turret.turretAngMtr.getPosition().getValueAsDouble() - yaw) <= 1){
             m_indexer.indexMtrLdr.set(1);
+        } else {
+            m_indexer.indexMtrLdr.set(0);
         }
     }
 

@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class Outtake extends SubsystemBase {
-
     public TalonFX wheelSpeedMtr;
     private TalonFXConfiguration wheelSpeedMtrCfg;
     private MotionMagicVelocityVoltage motionMagicVelocityVoltage;
@@ -21,6 +20,7 @@ public class Outtake extends SubsystemBase {
 
     public Outtake() {
         wheelSpeedMtr = new TalonFX(OuttakeConstants.OUTTAKE_MOTOR_PORT);
+
         wheelSpeedMtrCfg = new TalonFXConfiguration();
         motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0.0).withSlot(0);
 

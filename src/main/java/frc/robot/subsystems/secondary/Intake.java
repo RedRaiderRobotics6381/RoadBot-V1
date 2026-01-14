@@ -9,18 +9,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
-
-    private final VoltageOut voltageCntrl;
-    private final TalonFX intVelMtr;
+    public TalonFX intVelMtr;
+    private TalonFXConfiguration intVelMtrCfg;
+    private VoltageOut voltageCntrl;
 
     private double kP = 1.00, kI = 0.0, kD = 0.00;
     public boolean close;
 
 public Intake() {
-    voltageCntrl = new VoltageOut(0.0);
-    TalonFXConfiguration intVelMtrCfg = new TalonFXConfiguration();
-
     intVelMtr = new TalonFX(IntakeConstants.INTAKE_MOTOR_PORT);
+
+    intVelMtrCfg = new TalonFXConfiguration();
+    voltageCntrl = new VoltageOut(0.0);
 
     intVelMtrCfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intVelMtrCfg.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -40,7 +40,4 @@ public Intake() {
 public void setVoltage(double volt) {
     intVelMtr.setControl(voltageCntrl.withOutput(volt));
 }
-
-
-
 }

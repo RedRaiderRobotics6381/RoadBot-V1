@@ -13,14 +13,11 @@ import frc.robot.Constants.*;
 
 public class Climber extends SubsystemBase {
     public TalonFX climbMtrLdr;
-    public TalonFX climbMtrFlw;
-    public TalonFXConfiguration  climbConfigLdr;
-    public MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
+    private TalonFX climbMtrFlw;
+    private TalonFXConfiguration  climbConfigLdr;
+    private MotionMagicVoltage motionMagicVoltage;
 
-    private double kP = 0.15;
-    private double kI = 0;
-    private double kD = 0.075;
-    private double kFF = 0;
+    private double kP = 0.15, kI = 0, kD = 0.075, kFF = 0;
     public DigitalInput limitSw;
     private boolean climberInitialized;
 
@@ -28,12 +25,16 @@ public class Climber extends SubsystemBase {
         climbMtrLdr = new TalonFX(ClimberConstants.LEFT_CLIMBER_MOTOR_PORT);
         climbMtrFlw = new TalonFX(ClimberConstants.RIGHT_CLIMBER_MOTOR_PORT);
         climbMtrFlw.setControl(new Follower(ClimberConstants.LEFT_CLIMBER_MOTOR_PORT, false));
+
         climbConfigLdr = new TalonFXConfiguration();
+        motionMagicVoltage = new MotionMagicVoltage(0.0).withSlot(0);
+
         limitSw = new DigitalInput(9);
 
         climbConfigLdr.Slot0.kP = kP;
         climbConfigLdr.Slot0.kI = kI;
         climbConfigLdr.Slot0.kD = kD;
+        climbConfigLdr.Slot0.kG = kFF;
 
         climbConfigLdr.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         climbConfigLdr.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

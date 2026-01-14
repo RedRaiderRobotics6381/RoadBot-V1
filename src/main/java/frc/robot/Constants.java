@@ -18,7 +18,8 @@ public class Constants {
   }
 
   public static class IndexerConstants {
-    public static final int INDEXER_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int INDEXER_MOTOR_PORT_LDR = 0; //TODO Change Later!
+    public static final int INDEXER_MOTOR_PORT_FLW = 0; //TODO Change Later!
   }
 
   public static class IntakeConstants {
@@ -34,6 +35,8 @@ public class Constants {
 
   public static class RotateConstants {
     public static final int ROTATE_MOTOR_PORT = 0; //TODO Change Later!
+    public static final int ROTATE_ACCELERATION_CONSTRAINT = 0; //TODO Change Later!
+    public static final int ROTATE_VELOCITY_CONSTRAINT = 0; //TODO Change Later!
   }
 
   public static class OuttakeConstants {

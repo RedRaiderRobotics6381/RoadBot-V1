@@ -10,14 +10,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public class Turret extends SubsystemBase{
-    
-public TalonFX turretAngMtr;
-private TalonFXConfiguration turretAngMtrCfg;
-private MotionMagicVoltage motionMagicVoltage;
+public class Turret extends SubsystemBase{  
+    public TalonFX turretAngMtr;
+    private TalonFXConfiguration turretAngMtrCfg;
+    private MotionMagicVoltage motionMagicVoltage;
 
-private double kP = 0.010, kI = 0.0, kD = 0.15;
-public boolean close;
+    private double kP = 0.010, kI = 0.0, kD = 0.15;
+    public boolean close;
 
     public Turret() {
         turretAngMtr = new TalonFX(TurretConstants.TURRET_MOTOR_PORT);
@@ -42,6 +41,10 @@ public boolean close;
         turretAngMtr.getConfigurator().apply(turretAngMtrCfg);
     }
 
+    public void setTurret(double angle) {
+        turretAngMtr.setControl(motionMagicVoltage.withPosition(angle));
+    }
+
     public FunctionalCommand setTurretCmd(double pos) {
         return new FunctionalCommand(
                 () -> {
@@ -50,9 +53,5 @@ public boolean close;
                 },
                 () -> (Math.abs(pos - turretAngMtr.getPosition().getValueAsDouble()) <= 2.0 || (Math.abs(pos - turretAngMtr.getPosition().getValueAsDouble()) <= 4.0 && Math.abs(turretAngMtr.getVelocity().getValueAsDouble()) <= 5.0)),
                 this);
-    }
-
-    public void setTurret(double angle) {
-        turretAngMtr.setControl(motionMagicVoltage.withPosition(angle));
     }
 }

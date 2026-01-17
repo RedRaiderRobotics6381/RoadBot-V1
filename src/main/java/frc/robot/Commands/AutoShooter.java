@@ -1,5 +1,9 @@
 package frc.robot.Commands;
 
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.Secondary.Indexer;
@@ -45,6 +49,8 @@ public class AutoShooter extends Command {
                           Math.pow(ConstantValues.SHOOTER_SPEED, 2)))) / 
                           192 * (distance - FieldConstants.SMALLEST_RADIUS_OF_HUB));
     
+
+                          
         upperBoundAngle = Math.atan((Math.pow(ConstantValues.SHOOTER_SPEED, 2) + 
                           Math.sqrt(Math.pow(ConstantValues.SHOOTER_SPEED,4) - 
                           192 * (192 * Math.pow(distance + FieldConstants.SMALLEST_RADIUS_OF_HOLE, 2) + 
@@ -56,7 +62,8 @@ public class AutoShooter extends Command {
         m_rotate.setRotateAngleCmd(angle);
         
         yaw = Math.atan((158.5 - drivetrain.getState().Pose.getY())/(182.1 - drivetrain.getState().Pose.getX()));
-        m_turret.setTurretCmd(yaw);
+        // m_turret.setTurretCmd(yaw);
+        drivetrain.driveToPoseWithConstraints(new Pose2d(drivetrain.getState().Pose.getX(), drivetrain.getState().Pose.getY(), new Rotation2d(yaw)), new PathConstraints(100, 100, 100, 100));
         if(Math.abs(m_rotate.armAngMtr.getPosition().getValueAsDouble() - angle) <= 1 && Math.abs(m_outtake.wheelSpeedMtr.getVelocity().getValueAsDouble() - ConstantValues.SHOOTER_RPM) <= 30 && Math.abs(m_turret.turretAngMtr.getPosition().getValueAsDouble() - yaw) <= 1){
             m_indexer.indexMtrLdr.set(1);
         } else {
